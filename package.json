@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@johnlindquist/kit": "file:../.kit"
+  }
+}

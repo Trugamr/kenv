@@ -1,0 +1,9 @@
+node_modules
+
+kenvs/sponsors
+
+.env
+.scripts
+bin
+logs
+tmp
