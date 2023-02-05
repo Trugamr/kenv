@@ -4,6 +4,7 @@
   },
   "devDependencies": {
     "@johnlindquist/kit": "file:../.kit",
-    "prettier": "^2.8.3"
+    "prettier": "^2.8.3",
+    "sony-tv-api": "^0.0.3"
   }
 }
