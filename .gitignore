@@ -7,3 +7,5 @@ kenvs/sponsors
 bin
 logs
 tmp
+
+db/*.private.json
