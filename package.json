@@ -1,5 +1,9 @@
 {
+  "scripts": {
+    "format": "prettier --ignore-path .gitignore --write ."
+  },
   "devDependencies": {
-    "@johnlindquist/kit": "file:../.kit"
+    "@johnlindquist/kit": "file:../.kit",
+    "prettier": "^2.8.3"
   }
 }
