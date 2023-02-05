@@ -53,5 +53,31 @@ await choose({
         await api.setActiveApp({ uri })
       },
     },
+    {
+      name: 'Remote',
+      description: 'Sent remote control commands',
+      onSubmit: async () => {
+        const {
+          result: [, commands],
+        } = await api.getRemoteControllerInfo()
+
+        const command = await choose<(typeof commands)[number]>({
+          placeholder: 'Select command to send',
+          choices: commands.map(command => {
+            return {
+              name: command.name,
+              description: command.value,
+              value: command,
+            }
+          }),
+        })
+
+        try {
+          await api.sendIrccCommand(command.value)
+        } catch (error) {
+          // Supress known error even if ircc command is sent
+        }
+      },
+    },
   ],
 })

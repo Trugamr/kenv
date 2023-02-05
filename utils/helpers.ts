@@ -24,7 +24,7 @@ export function pathfix() {
  */
 export function createArgWithHistory() {
   const history: PromptConfig[] = []
-  function choose(config: PromptConfig, push: boolean = true) {
+  function choose<T = string>(config: PromptConfig, push: boolean = true) {
     if (push) {
       history.push(config)
     }
@@ -49,7 +49,7 @@ export function createArgWithHistory() {
       shortcuts.push(...config.shortcuts)
     }
 
-    return arg({ ...config, shortcuts })
+    return arg<T>({ ...config, shortcuts })
   }
 
   return choose
