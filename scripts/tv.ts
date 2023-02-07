@@ -79,5 +79,41 @@ await choose({
         }
       },
     },
+    {
+      name: 'Set Volume',
+      description: 'Set TV volume to a specified amount',
+      onSubmit: async () => {
+        const {
+          result: [[info]],
+        } = await api.getVolumeInformation()
+
+        await choose({
+          placeholder: `Set value from ${info.minVolume} to ${info.maxVolume}`,
+          choices: async input => {
+            if (input.trim() === '') {
+              return []
+            }
+
+            const parsed = Number(input)
+            if (!isNaN(parsed)) {
+              const volume = _.clamp(parsed, info.minVolume, info.maxVolume)
+              return [
+                {
+                  name: `Set volume to ${volume}`,
+                  onSubmit: async () => {
+                    await api.setAudioVolume({
+                      target: info.target,
+                      volume: volume.toString(),
+                    })
+                  },
+                },
+              ]
+            } else {
+              return [{ name: 'Invalid volume' }]
+            }
+          },
+        })
+      },
+    },
   ],
 })
