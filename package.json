@@ -4,6 +4,8 @@
   },
   "devDependencies": {
     "@johnlindquist/kit": "file:../.kit",
+    "axios": "1.2.1",
+    "playwright": "^1.30.0",
     "prettier": "^2.8.3",
     "sony-tv-api": "^0.0.3"
   }
