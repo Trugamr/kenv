@@ -36,6 +36,7 @@ if (!database.credentials) {
   authUrl.searchParams.set('response_type', 'code')
   authUrl.searchParams.set('client_id', SPOTIFY_CLIENT_ID)
   authUrl.searchParams.set('redirect_uri', SPOTIFY_REDIRECT_URI)
+  authUrl.searchParams.set('scope', 'user-modify-playback-state')
 
   const page = await browser.newPage()
   await page.goto(authUrl.toString())
@@ -83,21 +84,21 @@ api.interceptors.request.use(config => {
 
 api.interceptors.response.use(undefined, async error => {
   if (axios.isAxiosError(error) && error.response.status === 401) {
+    const body = new URLSearchParams({
+      refresh_token: database.credentials.refresh_token,
+      grant_type: 'refresh_token',
+    })
     const { data: credentials } = await post<SpotifyCredentials>(
       'https://accounts.spotify.com/api/token',
-      undefined,
+      body,
       {
-        params: {
-          refresh_token: database.credentials.refresh_token,
-          grant_type: 'refresh_token',
-        },
         headers: {
           Authorization: `Basic ${SPOTIFY_AUTHORIZATION}`,
         },
       },
     )
 
-    database.credentials = credentials
+    database.credentials = { ...database.credentials, ...credentials }
     await database.write()
 
     error.response.config.headers[
@@ -135,4 +136,8 @@ const uri = await arg({
       }
     })
   },
+})
+
+await api.put('/v1/me/player/play', {
+  uris: [uri],
 })
