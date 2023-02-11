@@ -61,21 +61,33 @@ await choose({
           result: [, commands],
         } = await api.getRemoteControllerInfo()
 
-        const command = await choose<(typeof commands)[number]>({
-          placeholder: 'Select command to send',
-          choices: commands.map(command => {
-            return {
-              name: command.name,
-              description: command.value,
-              value: command,
-            }
-          }),
-        })
+        let push = true
+        let defaultValue = ''
+        while (true) {
+          const command = await choose<(typeof commands)[number]>(
+            {
+              placeholder: 'Select command to send',
+              defaultValue,
+              choices: commands.map(command => {
+                return {
+                  name: command.name,
+                  description: command.value,
+                  value: command,
+                }
+              }),
+            },
+            push,
+          )
+          // As this is in a while loop only push to history stack once
+          push = false
+          // Preserve selection when showing choices again
+          defaultValue = command.name
 
-        try {
-          await api.sendIrccCommand(command.value)
-        } catch (error) {
-          // Supress known error even if ircc command is sent
+          try {
+            await api.sendIrccCommand(command.value)
+          } catch (error) {
+            // Supress known error even if ircc command is sent
+          }
         }
       },
     },
