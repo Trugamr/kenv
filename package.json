@@ -5,6 +5,7 @@
   "devDependencies": {
     "@johnlindquist/kit": "file:../.kit",
     "axios": "1.2.1",
+    "fastify": "^4.13.0",
     "filenamify": "^5.1.1",
     "playwright": "^1.30.0",
     "prettier": "^2.8.3",
