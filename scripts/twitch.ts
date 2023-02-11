@@ -143,6 +143,7 @@ const {
     viewer_count: number
     started_at: string
     thumbnail_url: string
+    game_name: string
   }>
 }>('/streams/followed', {
   params: {
@@ -159,10 +160,11 @@ const stream = await arg<(typeof streams)[number]>({
 
     return {
       name: `${s.user_name} • ${s.title}`,
-      description: `${s.viewer_count.toLocaleString()} watching, started ${formatDateToNow(
-        new Date(s.started_at),
-        { addSuffix: true },
-      )}`,
+      description: `${s.viewer_count.toLocaleString()} watching ${
+        s.user_name
+      } play ${s.game_name}, started ${formatDateToNow(new Date(s.started_at), {
+        addSuffix: true,
+      })}`,
       img,
       value: s,
     }
