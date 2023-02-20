@@ -9,7 +9,7 @@
     "filenamify": "^5.1.1",
     "playwright": "^1.30.0",
     "prettier": "^2.8.3",
-    "sony-tv-api": "^0.0.3",
+    "sony-tv-api": "^0.0.4",
     "tesseract.js": "^4.0.2"
   }
 }
