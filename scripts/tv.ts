@@ -127,5 +127,26 @@ await choose({
         })
       },
     },
+    {
+      name: 'Set Source',
+      description: 'Set input source',
+      onSubmit: async () => {
+        const {
+          result: [inputs],
+        } = await api.getCurrentExternalInputsStatus()
+
+        const uri = await choose({
+          choices: inputs.map(input => {
+            return {
+              name: input.label === '' ? input.title : input.label,
+              description: input.label === '' ? undefined : input.title,
+              value: input.uri,
+            }
+          }),
+        })
+
+        await api.setPlayContent({ uri })
+      },
+    },
   ],
 })
