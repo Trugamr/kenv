@@ -50,3 +50,19 @@ export function createArgWithHistory() {
 
   return choose
 }
+
+/**
+ * Bytes to human readable string
+ */
+export function bytesToHumanReadable(bytes: number) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let index = 0
+  let size = bytes
+
+  while (size > 1024 && index < units.length) {
+    size /= 1024
+    index++
+  }
+
+  return `${size.toFixed(2)} ${units[index]}`
+}

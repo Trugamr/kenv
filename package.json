@@ -13,6 +13,7 @@
     "tesseract.js": "^4.0.2"
   },
   "dependencies": {
-    "execa": "^7.1.1"
+    "execa": "^7.1.1",
+    "zod": "^3.21.4"
   }
 }
