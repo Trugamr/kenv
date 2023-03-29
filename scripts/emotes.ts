@@ -1,10 +1,13 @@
 // Name: Emotes
 // Description: Search for emotes on 7tv and copy them to clipboard
 
+// Note: Requires imagemagick and clipcopy to be installed on system
+
 import '@johnlindquist/kit'
-import axios from 'axios'
-import { setTimeout as sleep } from 'node:timers/promises'
 const { z }: typeof import('zod') = await npm('zod')
+const { isAxiosError }: typeof import('axios') = await npm('axios')
+const { execa }: typeof import('execa') = await npm('execa')
+import * as crypto from 'node:crypto'
 
 const query = (search: string) => `query {
   emotes(query: "${search}", limit: 24) {
@@ -74,7 +77,9 @@ const url = await arg({
       for (const emote of parsed.data.emotes.items) {
         const host = emote.versions[0]?.host
         const [file] =
-          host?.files.sort((prev, next) => next.width - prev.width) ?? []
+          host?.files
+            .filter(file => file.format === 'WEBP')
+            .sort((prev, next) => next.width - prev.width) ?? []
         if (!file) {
           continue
         }
@@ -88,7 +93,7 @@ const url = await arg({
         return { img: emote.url, name: emote.name, value: emote.url }
       })
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         console.log(error.response?.data)
       } else {
         console.log(error)
@@ -99,7 +104,19 @@ const url = await arg({
   },
 })
 
-// TODO: Convert to GIF
-// TODO: Write converted image to clipboard
+// TODO: Try to achive in memory instead of writing to disk
+// TODO: Optimize output size
 
-await clipboard.writeText(url)
+const extension = path.extname(url)
+const hash = crypto.createHash('sha256').update(url).digest('hex')
+const filename = `${hash}${extension}`
+
+await download(url, tempdir(), {
+  filename,
+})
+
+const filepath = path.join(tempdir(), filename)
+const output = path.join(tempdir(), `${hash}.gif`)
+
+await execa('magick', [filepath, output])
+await execa('clipcopy', [output])
