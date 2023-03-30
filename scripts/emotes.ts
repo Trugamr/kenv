@@ -31,35 +31,38 @@ const query = (search: string) => `query {
   }
 }`
 
-const schema = z.object({
-  data: z.object({
-    emotes: z.object({
-      items: z.array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-          versions: z.array(
-            z.object({
-              host: z.object({
-                url: z.string(),
-                files: z.array(
-                  z.object({
-                    format: z.string(),
-                    frame_count: z.number(),
-                    height: z.number(),
-                    width: z.number(),
-                    size: z.number(),
-                    name: z.string(),
-                  }),
-                ),
+const schema = z.union([
+  z.object({ errors: z.array(z.object({ message: z.string() })) }),
+  z.object({
+    data: z.object({
+      emotes: z.object({
+        items: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            versions: z.array(
+              z.object({
+                host: z.object({
+                  url: z.string(),
+                  files: z.array(
+                    z.object({
+                      format: z.string(),
+                      frame_count: z.number(),
+                      height: z.number(),
+                      width: z.number(),
+                      size: z.number(),
+                      name: z.string(),
+                    }),
+                  ),
+                }),
               }),
-            }),
-          ),
-        }),
-      ),
+            ),
+          }),
+        ),
+      }),
     }),
   }),
-})
+])
 
 const url = await arg({
   placeholder: 'Select an emote',
@@ -74,24 +77,33 @@ const url = await arg({
       const parsed = await schema.parseAsync(data)
       const emotes: Array<{ name: string; url: string }> = []
 
-      for (const emote of parsed.data.emotes.items) {
-        const host = emote.versions[0]?.host
-        const [file] =
-          host?.files
-            .filter(file => file.format === 'WEBP')
-            .sort((prev, next) => next.width - prev.width) ?? []
-        if (!file) {
-          continue
+      if ('errors' in parsed && parsed.errors) {
+        console.log(parsed.errors.map(error => error.message).join('\n'))
+        return []
+      }
+
+      if ('data' in parsed) {
+        for (const emote of parsed.data.emotes.items) {
+          const host = emote.versions[0]?.host
+          const [file] =
+            host?.files
+              .filter(file => file.format === 'WEBP')
+              .sort((prev, next) => next.width - prev.width) ?? []
+          if (!file) {
+            continue
+          }
+          emotes.push({
+            name: emote.name,
+            url: `https:${host.url}/${file.name}`,
+          })
         }
-        emotes.push({
-          name: emote.name,
-          url: `https:${host.url}/${file.name}`,
+
+        return emotes.map(emote => {
+          return { img: emote.url, name: emote.name, value: emote.url }
         })
       }
 
-      return emotes.map(emote => {
-        return { img: emote.url, name: emote.name, value: emote.url }
-      })
+      return []
     } catch (error) {
       if (isAxiosError(error)) {
         console.log(error.response?.data)
@@ -118,5 +130,14 @@ await download(url, tempdir(), {
 const filepath = path.join(tempdir(), filename)
 const output = path.join(tempdir(), `${hash}.gif`)
 
-await execa('magick', [filepath, output])
+// prettier-ignore
+await execa('magick', [
+  'convert', filepath,
+  '-coalesce', // Split input animation into individual frames
+  '-set', 'dispose', 'previous', // Dispose previous frame before drawing next
+  '-background', 'white',  // Optionally set a background color
+  '-alpha', 'remove', // Optionally remove transparency
+  '-layers', 'optimize', // Optimize output size
+  output,
+])
 await execa('clipcopy', [output])
