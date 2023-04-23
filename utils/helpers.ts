@@ -33,7 +33,7 @@ export function createArgWithHistory() {
         onPress: async () => {
           if (history.length > 1) {
             history.pop()
-            await choose(history.at(-1), false)
+            await choose(history.at(-1)!, false)
           } else {
             exit(0)
           }
