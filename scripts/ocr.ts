@@ -13,6 +13,11 @@ if (!image.length) {
   image = await selectFile('Select image')
 }
 
+// Exit if no image was selected or copied
+if(!image.length) {
+  process.exit(0)
+}
+
 const {
   data: { text },
 } = await Tesseract.recognize(image, 'eng', {

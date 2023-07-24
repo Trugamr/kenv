@@ -1,12 +1,21 @@
 import { PromptConfig, Shortcut } from '@johnlindquist/kit'
 
+export function uniq<T>(array: T[]) {
+  return Array.from(new Set(array))
+}
+
+
+export function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
 /**
  * Remove duplicate and kit's path entries
  * Kit's path entries override installed npm and node
  */
 export function pathfix() {
   if (process.env.PATH) {
-    process.env.PATH = _.uniq(process.env.PATH.split(path.delimiter))
+    process.env.PATH = uniq(process.env.PATH.split(path.delimiter))
       .filter(
         entry => !['.knode', '.kit', '.kenv'].some(k => entry.includes(k)),
       )
@@ -20,7 +29,7 @@ export function pathfix() {
  */
 export function createArgWithHistory() {
   const history: PromptConfig[] = []
-  function choose<T = string>(config: PromptConfig, push: boolean = true) {
+  function choose<T= string>(config: PromptConfig, push: boolean = true) {
     if (push) {
       history.push(config)
     }

@@ -2,6 +2,7 @@
 // Description: Browse followed twitch streams
 
 import '@johnlindquist/kit'
+import { AxiosHeaders } from 'axios'
 import { FastifyRequest } from 'fastify'
 
 type TwitchCredentials = {
@@ -89,17 +90,22 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(config => {
-  if (!config.headers) {
-    config.headers = {}
+  if (database.credentials) {
+    config.headers.set(
+      'Authorization',
+      `Bearer ${database.credentials.access_token}`,
+    )
   }
-  config.headers[
-    'Authorization'
-  ] = `Bearer ${database.credentials.access_token}`
+
   return config
 })
 
 api.interceptors.response.use(undefined, async error => {
-  if (axios.isAxiosError(error) && error.response.status === 401) {
+  if (axios.isAxiosError(error) && error.response?.status === 401) {
+    if (!database.credentials) {
+      return Promise.reject(error)
+    }
+
     console.log('Refreshing credentials')
     const { data: credentials } = await post<TwitchCredentials>(
       'https://id.twitch.tv/oauth2/token',

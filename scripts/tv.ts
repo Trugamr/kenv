@@ -2,7 +2,7 @@
 // Description: Control TV
 
 import '@johnlindquist/kit'
-import { createArgWithHistory } from '../utils/helpers'
+import { clamp, createArgWithHistory } from '../utils/helpers'
 
 const { SonyTvApi }: typeof import('sony-tv-api') = await npm('sony-tv-api')
 
@@ -21,6 +21,7 @@ await choose({
       description: 'Turn on TV screen',
       onSubmit: async () => {
         await api.setPowerStatus(true)
+        return 'on'
       },
     },
     {
@@ -28,6 +29,7 @@ await choose({
       description: 'Put TV in standby mode',
       onSubmit: async () => {
         await api.setPowerStatus(false)
+        return 'off'
       },
     },
     {
@@ -51,6 +53,8 @@ await choose({
         })
 
         await api.setActiveApp({ uri })
+
+        return 'app'
       },
     },
     {
@@ -89,6 +93,8 @@ await choose({
             // Supress known error even if ircc command is sent
           }
         }
+
+        return 'remote'
       },
     },
     {
@@ -108,7 +114,7 @@ await choose({
 
             const parsed = Number(input)
             if (!isNaN(parsed)) {
-              const volume = _.clamp(parsed, info.minVolume, info.maxVolume)
+              const volume = clamp(parsed, info.minVolume, info.maxVolume)
               return [
                 {
                   name: `Set volume to ${volume}`,
@@ -125,6 +131,8 @@ await choose({
             }
           },
         })
+
+        return 'volume'
       },
     },
     {
@@ -146,6 +154,8 @@ await choose({
         })
 
         await api.setPlayContent({ uri })
+
+        return 'source'
       },
     },
   ],
