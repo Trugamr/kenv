@@ -21,7 +21,6 @@ await choose({
       description: 'Turn on TV screen',
       onSubmit: async () => {
         await api.setPowerStatus(true)
-        return 'on'
       },
     },
     {
@@ -29,7 +28,6 @@ await choose({
       description: 'Put TV in standby mode',
       onSubmit: async () => {
         await api.setPowerStatus(false)
-        return 'off'
       },
     },
     {
@@ -53,8 +51,6 @@ await choose({
         })
 
         await api.setActiveApp({ uri })
-
-        return 'app'
       },
     },
     {
@@ -93,8 +89,6 @@ await choose({
             // Supress known error even if ircc command is sent
           }
         }
-
-        return 'remote'
       },
     },
     {
@@ -131,8 +125,6 @@ await choose({
             }
           },
         })
-
-        return 'volume'
       },
     },
     {
@@ -154,8 +146,6 @@ await choose({
         })
 
         await api.setPlayContent({ uri })
-
-        return 'source'
       },
     },
   ],

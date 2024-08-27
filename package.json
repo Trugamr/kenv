@@ -15,5 +15,9 @@
   "dependencies": {
     "execa": "^7.1.1",
     "zod": "^3.21.4"
+  },
+  "engines": {
+    "node": "18.18.2",
+    "npm": "9.8.1"
   }
 }
